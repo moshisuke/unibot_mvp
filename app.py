@@ -8,14 +8,10 @@ app = Flask(__name__)
 CORS(app)
 
 # ==================== CONFIGURAÇÃO DE PERSISTÊNCIA ====================
-if os.environ.get('RENDER'):
-    # No Render, usar o disco persistente
-    DATA_DIR = '/var/data'
-    os.makedirs(DATA_DIR, exist_ok=True)
-    DATA_FILE = os.path.join(DATA_DIR, 'dados.json')
-else:
-    # Localmente
-    DATA_FILE = 'dados.json'
+# Usa o diretório de trabalho do app como base
+# No Render, se você criar um Disk, o arquivo ficará lá
+DATA_DIR = os.environ.get('RENDER_DISK_PATH', '.')
+DATA_FILE = os.path.join(DATA_DIR, 'dados.json')
 
 print(f"📁 Arquivo de dados: {DATA_FILE}")
 
@@ -272,6 +268,14 @@ def chat():
 
 # ==================== DADOS INICIAIS ====================
 def inicializar():
+    # Garantir que o diretório existe (apenas para o caso de ser um caminho customizado)
+    data_dir = os.path.dirname(DATA_FILE)
+    if data_dir and not os.path.exists(data_dir):
+        try:
+            os.makedirs(data_dir, exist_ok=True)
+        except:
+            pass  # Se não conseguir criar, usa o diretório atual
+    
     if not os.path.exists(DATA_FILE):
         dados = {
             "alunos": [
