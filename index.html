@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniBot - Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .sub {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .tipo-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tipo-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .tipo-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover { background: #5a67d8; }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .info p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 UniBot</h1>
+        <p class="sub">Portal Acadêmico</p>
+        
+        <div class="tipo-selector">
+            <button class="tipo-btn active" data-tipo="aluno">👨‍🎓 Aluno</button>
+            <button class="tipo-btn" data-tipo="professor">👨‍🏫 Professor</button>
+            <button class="tipo-btn" data-tipo="secretaria">👑 Secretaria</button>
+        </div>
+        
+        <input type="email" id="email" placeholder="E-mail">
+        <input type="password" id="senha" placeholder="Senha">
+        <button id="entrar">Entrar</button>
+        
+        <div class="info">
+            <strong>🔐 Credenciais</strong>
+            <p>Aluno: ana@unibot.com / 123</p>
+            <p>Professor: prof@unibot.com / 123</p>
+            <p>Secretaria: admin@unibot.com / admin</p>
+        </div>
+    </div>
+
+    <script>
+        let tipo = 'aluno';
+        
+        document.querySelectorAll('.tipo-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tipo = btn.dataset.tipo;
+                
+                if (tipo === 'aluno') {
+                    document.getElementById('email').value = 'ana@unibot.com';
+                    document.getElementById('senha').value = '123';
+                } else if (tipo === 'professor') {
+                    document.getElementById('email').value = 'prof@unibot.com';
+                    document.getElementById('senha').value = '123';
+                } else {
+                    document.getElementById('email').value = 'admin@unibot.com';
+                    document.getElementById('senha').value = 'admin';
+                }
+            };
+        });
+        
+        document.getElementById('entrar').onclick = async () => {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, senha, tipo})
+            });
+            
+            const data = await res.json();
+            if (data.ok) {
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                localStorage.setItem('tipo', data.tipo);
+                window.location = data.tipo === 'aluno' ? '/aluno.html' : 
+                                  data.tipo === 'professor' ? '/professor.html' : '/secretaria.html';
+            } else {
+                alert('❌ Login inválido!');
+            }
+        };
+        
+        // Pré-preencher
+        document.getElementById('email').value = 'ana@unibot.com';
+        document.getElementById('senha').value = '123';
+    </script>
+</body>
+</html>

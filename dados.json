@@ -1,0 +1,45 @@
+{
+  "alunos": [
+    {
+      "id": 1,
+      "nome": "Ana Silva",
+      "email": "ana@unibot.com",
+      "senha": "123",
+      "nota": 8.5,
+      "frequencia": 85,
+      "turma": "ADS-1A"
+    },
+    {
+      "id": 2,
+      "nome": "Bruno Mendes",
+      "email": "bruno@unibot.com",
+      "senha": "123",
+      "nota": 6.0,
+      "frequencia": 70,
+      "turma": "ADS-1A"
+    }
+  ],
+  "professores": [
+    {
+      "id": 1,
+      "nome": "Prof. Ricardo",
+      "email": "prof@unibot.com",
+      "senha": "123",
+      "disciplina": "Programação"
+    }
+  ],
+  "disciplinas": [],
+  "notificacoes": [],
+  "ouvidorias": [
+    {
+      "alunoId": 1,
+      "alunoNome": "Ana Silva",
+      "mensagem": "problema com o pagamento",
+      "id": 3,
+      "data": "04/05/2026 23:54",
+      "status": "respondido",
+      "resposta": "aguarde o contato de um de nossos atendentes"
+    }
+  ],
+  "proximo_id": 4
+}

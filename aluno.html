@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>UniBot - Aluno</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+        }
+
+        /* Menu lateral */
+        .menu {
+            width: 250px;
+            background: #1a1a2e;
+            color: white;
+            position: fixed;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .menu h2 {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .menu button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: transparent;
+            border: none;
+            color: white;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .menu button:hover, .menu button.ativo {
+            background: #667eea;
+        }
+
+        .sair {
+            margin-top: 50px;
+            background: #e53e3e !important;
+            text-align: center !important;
+        }
+
+        /* Conteúdo */
+        .conteudo {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .pagina {
+            display: none;
+        }
+
+        .pagina.ativa {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .valor-grande {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f5f5f5;
+        }
+
+        /* Formulários */
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        .mensagem {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ed8936;
+        }
+
+        .mensagem.respondida {
+            border-left-color: #48bb78;
+        }
+
+        .resposta {
+            background: #e3f2fd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        /* Chat */
+        .chat-area {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .chat-msgs {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .bot-msg, .user-msg {
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 20px;
+            max-width: 80%;
+        }
+
+        .bot-msg {
+            background: #e9ecef;
+        }
+
+        .user-msg {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+
+        .sugestoes {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sugestao {
+            background: #f0f0f0;
+            color: #333;
+            padding: 5px 12px;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+
+        @media (max-width: 700px) {
+            .menu {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .conteudo {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu">
+    <h2>🎓 UniBot</h2>
+    <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; margin-bottom:20px; text-align:center">
+        <div id="nomeAluno"></div>
+        <small id="turmaAluno"></small>
+    </div>
+    <button class="btn-menu ativo" data-pagina="home">🏠 Início</button>
+    <button class="btn-menu" data-pagina="historico">📚 Histórico</button>
+    <button class="btn-menu" data-pagina="ouvidoria">💬 Ouvidoria</button>
+    <button class="btn-menu" data-pagina="chat">🤖 Chat</button>
+    <button class="btn-menu sair" id="sairBtn">🚪 Sair</button>
+</div>
+
+<div class="conteudo">
+    <!-- PÁGINA INÍCIO -->
+    <div id="home" class="pagina ativa">
+        <h1>📊 Meu Desempenho</h1>
+        <div class="card">
+            <h3>📝 Nota Atual</h3>
+            <div class="valor-grande" id="notaAluno">-</div>
+        </div>
+        <div class="card">
+            <h3>📈 Frequência</h3>
+            <div class="valor-grande" id="freqAluno">-</div>
+        </div>
+        <div class="card">
+            <h3>🎯 Situação</h3>
+            <div class="valor-grande" id="situacaoAluno">-</div>
+        </div>
+    </div>
+
+    <!-- PÁGINA HISTÓRICO -->
+    <div id="historico" class="pagina">
+        <h1>📚 Histórico</h1>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr><th>Disciplina</th><th>Nota</th><th>Frequência</th></tr>
+                </thead>
+                <tbody id="tabelaHistorico"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PÁGINA OUVIDORIA -->
+    <div id="ouvidoria" class="pagina">
+        <h1>💬 Ouvidoria</h1>
+        <div class="card">
+            <textarea id="msgOuvidoria" rows="3" placeholder="Digite sua mensagem..."></textarea>
+            <button id="enviarMsgBtn">📤 Enviar Mensagem</button>
+        </div>
+        <div class="card">
+            <h3>📋 Minhas Mensagens</h3>
+            <div id="listaMensagens">
+                <div class="loading">Carregando mensagens...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PÁGINA CHAT -->
+    <div id="chat" class="pagina">
+        <h1>🤖 Chatbot</h1>
+        <div class="chat-area">
+            <div class="chat-msgs" id="chatMsgs">
+                <div class="bot-msg">Olá! Como posso ajudar?</div>
+            </div>
+            <div class="sugestoes">
+                <button class="sugestao">Como vejo minhas notas?</button>
+                <button class="sugestao">Telefone da secretaria</button>
+                <button class="sugestao">Como solicitar bolsa?</button>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Digite sua pergunta...">
+                <button id="chatBtn">Enviar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dados do aluno (vem do login)
+    const aluno = JSON.parse(localStorage.getItem('usuario'));
+    if (!aluno || localStorage.getItem('tipo') !== 'aluno') {
+        window.location = '/';
+    }
+
+    // Mostrar dados do aluno
+    document.getElementById('nomeAluno').innerHTML = `👋 ${aluno.nome}`;
+    document.getElementById('turmaAluno').innerHTML = `Turma: ${aluno.turma || 'ADS-1A'}`;
+    document.getElementById('notaAluno').innerHTML = aluno.nota || 8.5;
+    document.getElementById('freqAluno').innerHTML = `${aluno.frequencia || 85}%`;
+    
+    const situacao = (aluno.nota || 8.5) >= 6 ? '✅ Aprovado' : '❌ Reprovado';
+    const cor = (aluno.nota || 8.5) >= 6 ? '#48bb78' : '#f56565';
+    document.getElementById('situacaoAluno').innerHTML = situacao;
+    document.getElementById('situacaoAluno').style.color = cor;
+
+    // Histórico (dados de exemplo)
+    const disciplinas = [
+        { nome: 'Programação I', nota: aluno.nota || 8.5, freq: aluno.frequencia || 85 },
+        { nome: 'Banco de Dados', nota: 7.5, freq: 78 },
+        { nome: 'Engenharia de Software', nota: 9.0, freq: 92 }
+    ];
+
+    const tabela = document.getElementById('tabelaHistorico');
+    tabela.innerHTML = disciplinas.map(d => `
+        <tr><td>${d.nome}</td><td>${d.nota}</td><td>${d.freq}%</td></tr>
+    `).join('');
+
+    // Navegação entre páginas
+    document.querySelectorAll('.btn-menu').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pagina = btn.dataset.pagina;
+            if (!pagina) return;
+            
+            document.querySelectorAll('.btn-menu').forEach(b => b.classList.remove('ativo'));
+            btn.classList.add('ativo');
+            
+            document.querySelectorAll('.pagina').forEach(p => p.classList.remove('ativa'));
+            document.getElementById(pagina).classList.add('ativa');
+            
+            // Recarregar ouvidoria ao entrar na página
+            if (pagina === 'ouvidoria') {
+                carregarMensagens();
+            }
+        });
+    });
+
+    // Sair
+    document.getElementById('sairBtn').onclick = () => {
+        localStorage.clear();
+        window.location = '/';
+    };
+
+    // ========== OUVIDORIA CORRIGIDA ==========
+    async function carregarMensagens() {
+        const container = document.getElementById('listaMensagens');
+        container.innerHTML = '<div class="loading">Carregando...</div>';
+        
+        try {
+            console.log('Buscando mensagens da ouvidoria...');
+            const res = await fetch('/api/ouvidorias');
+            
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            
+            const todas = await res.json();
+            console.log('Mensagens recebidas:', todas);
+            
+            const minhas = todas.filter(m => m.alunoId === aluno.id);
+            
+            if (minhas.length === 0) {
+                container.innerHTML = '<div class="loading">📭 Nenhuma mensagem enviada</div>';
+            } else {
+                container.innerHTML = minhas.map(m => `
+                    <div class="mensagem ${m.status === 'respondido' ? 'respondida' : ''}">
+                        <strong>📝 ${escapeHtml(m.mensagem)}</strong><br>
+                        <small>📅 ${m.data}</small>
+                        ${m.resposta ? `<div class="resposta">✅ <strong>Resposta:</strong> ${escapeHtml(m.resposta)}</div>` : '<span style="font-size:12px; color:#ed8936;">⏳ Aguardando resposta...</span>'}
+                    </div>
+                `).join('');
+            }
+        } catch(e) {
+            console.error('Erro ao carregar ouvidoria:', e);
+            container.innerHTML = '<div class="loading">❌ Erro ao carregar mensagens. Verifique se o servidor está rodando.</div>';
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.getElementById('enviarMsgBtn').onclick = async () => {
+        const msg = document.getElementById('msgOuvidoria').value.trim();
+        if (!msg) {
+            alert('Digite uma mensagem antes de enviar!');
+            return;
+        }
+        
+        const btn = document.getElementById('enviarMsgBtn');
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+        
+        try {
+            console.log('Enviando mensagem:', msg);
+            const res = await fetch('/api/ouvidorias', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    alunoId: aluno.id, 
+                    alunoNome: aluno.nome, 
+                    mensagem: msg 
+                })
+            });
+            
+            if (res.ok) {
+                document.getElementById('msgOuvidoria').value = '';
+                await carregarMensagens();
+                alert('✅ Mensagem enviada com sucesso!');
+            } else {
+                const error = await res.text();
+                console.error('Erro do servidor:', error);
+                alert('❌ Erro ao enviar mensagem. Tente novamente.');
+            }
+        } catch(e) {
+            console.error('Erro de conexão:', e);
+            alert('❌ Erro de conexão. Verifique se o servidor está rodando.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📤 Enviar Mensagem';
+        }
+    };
+
+    // ========== CHATBOT ==========
+    async function enviarChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg) return;
+        
+        const chatDiv = document.getElementById('chatMsgs');
+        chatDiv.innerHTML += `<div class="user-msg">${escapeHtml(msg)}</div>`;
+        input.value = '';
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+        
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mensagem: msg })
+            });
+            const data = await res.json();
+            chatDiv.innerHTML += `<div class="bot-msg">${escapeHtml(data.resposta)}</div>`;
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        } catch(e) {
+            chatDiv.innerHTML += `<div class="bot-msg">😅 Desculpe, tive um problema. Tente novamente.</div>`;
+        }
+    }
+
+    document.getElementById('chatBtn').onclick = enviarChat;
+    document.getElementById('chatInput').onkeypress = (e) => {
+        if (e.key === 'Enter') enviarChat();
+    };
+    
+    document.querySelectorAll('.sugestao').forEach(btn => {
+        btn.onclick = () => {
+            document.getElementById('chatInput').value = btn.innerText;
+            enviarChat();
+        };
+    });
+
+    // Carregar mensagens da ouvidoria ao iniciar
+    carregarMensagens();
+</script>
+
+</body>
+</html>
